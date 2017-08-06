@@ -11,8 +11,8 @@ let Paddle = (function() {
         this.image = imageFromPath(imagePath);
         this.x = 100;
         this.y = 560;
-        this.speed = 8;
-        this.w = 128;
+        this.speed = 4;
+        this.w = 256;
         this.h = 16;
     }
     paddle.prototype.setImage = function(image) {
@@ -26,6 +26,41 @@ let Paddle = (function() {
     }
 
     return paddle;
+})();
+
+let Ball = (function() {
+    function ball(imagePath) {
+        this.image = imageFromPath(imagePath);
+        this.x = 0;
+        this.y = 0;
+        this.speedX = 4;
+        this.speedY = -4;
+        this.w = 16;
+        this.h = 16;
+        this.fired = false;
+    }
+    ball.prototype.setImage = function(image) {
+        this.image = image;
+    };
+    ball.prototype.fire = function() {
+        this.fired = true;
+    }
+    ball.prototype.move = function() {
+        if(!this.fired) return;
+
+        let rightBorder = this.x + this.w;
+        let bottomBorder = this.y + this.h;
+        if(this.x < 0.1 || rightBorder > 959.9) {
+            this.speedX = -this.speedX;
+        }
+        if(this.y < 0.1 || bottomBorder > 639.9) {
+            this.speedY = -this.speedY;
+        }
+        this.x += this.speedX;
+        this.y += this.speedY;
+    }
+
+    return ball;
 })();
 
 let Arkanoid = (function () {
@@ -51,14 +86,14 @@ let Arkanoid = (function () {
             for(let i = 0; i < keys.length; i++) {
                 let key = keys[i];
                 if(that.keydowns[key]) {
-                    //调用被按下按键注册绑定的函数
+                    //调用与被按下按键注册绑定的函数
                     that.actions[key]();
                 }
             }
             that.update();
             that.clearScreen();
             that.draw();
-        }, 1000/45);
+        }, 1000/120);
     }
 
     arkanoid.prototype.registerAction = function(key, callback) {
@@ -84,9 +119,24 @@ let Arkanoid = (function () {
 
 function main() {
     let paddle = new Paddle('images/paddle.png');
+    let ball = new Ball('images/ball.png');
     let game = new Arkanoid('idCanvas');
     
     game.context.drawImage(paddle.image, paddle.x, paddle.y, paddle.w, paddle.h);
+
+    game.update = function() {
+        ball.move();
+    };
+    game.draw = function() {
+        game.drawImage(paddle);
+        game.drawImage(ball)
+    };
+
+    ball.fire = function() {
+        ball.fired = true;
+        ball.x = paddle.x + paddle.w / 2 - ball.w;
+        ball.y = paddle.y - ball.h / 2;
+    }
 
     game.registerAction('ArrowLeft', function() {
         paddle.moveLeft();
@@ -94,16 +144,14 @@ function main() {
     game.registerAction('ArrowRight', function() {
         paddle.moveRight();
     });
-    game.registerAction('a', function() {
-        paddle.moveLeft();
-    });
-    game.registerAction('d', function() {
-        paddle.moveRight();
+    game.registerAction('ArrowUp', function() {
+        ball.fire();
     });
 
-    game.draw = function() {
-        game.drawImage(paddle);
-    }
+
+    
+
+    
 
 }
 
