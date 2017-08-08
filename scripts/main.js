@@ -12,10 +12,12 @@ function loadLevel(o) {
 }
 
 let game = new Arkanoid('idCanvas');
+let paddle = new Paddle('images/paddle.png');
+let ball = new Ball('images/ball.png');
+let blocks = [];
+
 function main() {
-    let paddle = new Paddle('images/paddle.png');
-    let ball = new Ball('images/ball.png');
-    let blocks = [];
+    /*
     for(let i = 0; i < 8; i++) {
         blocks[i] = [];
         for(let j = 0; j < 14; j++) {
@@ -23,11 +25,11 @@ function main() {
             blocks[i][j].x = j * blocks[i][j].w + 32;
             blocks[i][j].y = i * blocks[i][j].h;
         }
-    }
+    }*/
     //let block = new Block('images/block.png');
     
     //log(LZString.compress(JSON.stringify(blocks)));
-    log(JSON.stringify(blocks))
+    //log(JSON.stringify(blocks))
     //console.dir(JSON.stringify(blocks));
 
     
@@ -41,27 +43,37 @@ function main() {
             ball.speedY = -ball.speedY;
             //log('重叠');
         }
-        for(let i = 0; i < blocks.length; i++)  {
-            for(let j = 0; j < blocks[i].length; j++) {
-                let block = blocks[i][j];
-                if(block.hitBox(ball)) {
-                    ball.y = block.y + block.h + ball.h;
-                    ball.speedY = -ball.speedY;
-                    //log('重叠');
-                    block.damage();
-                }
+        // for(let i = 0; i < blocks.length; i++)  {
+        //     for(let j = 0; j < blocks[i].length; j++) {
+        //         let block = blocks[i][j];
+        //         if(block.hitBox(ball)) {
+        //             ball.y = block.y + block.h + ball.h;
+        //             ball.speedY = -ball.speedY;
+        //             //log('重叠');
+        //             block.damage();
+        //         }
+        //     }
+        // }
+        blocks.map((b) => {
+            if(b.hitBox(ball)) {
+                ball.y = b.y + b.h + ball.h;
+                ball.speedY = -ball.speedY;
+                b.damage(); 
             }
-        }
+        });
     };
     game.draw = function() {
         game.drawImage(paddle);
         game.drawImage(ball);
         //game.drawImage(block)
-        for(let i = 0; i < blocks.length; i++)  {
-            for(let j = 0; j < blocks[i].length; j++) {
-                game.drawImage(blocks[i][j]);
-            }
-        }
+        // for(let i = 0; i < blocks.length; i++)  {
+        //     for(let j = 0; j < blocks[i].length; j++) {
+        //         game.drawImage(blocks[i][j]);
+        //     }
+        // }
+        blocks.map((b) => {
+            game.drawImage(b);
+        });        
     };
 
     ball.fire = function() {

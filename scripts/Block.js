@@ -10,6 +10,7 @@ let Block = (function() {
 
 
     }
+    block.prototype.levelLimit = 1;
     block.prototype.images = (function() {
         let imgs = [];
         let num = 2; 
@@ -21,9 +22,15 @@ let Block = (function() {
         return imgs;
     })();
 
-    block.prototype.setImage = function(image) {
-        this.image = image;
+    block.prototype.setImage = function(typeCode) {
+        this.image = this.images[typeCode];
     };
+    block.prototype.levelUp = function() {
+        if(this.type > this.levelLimit) return;
+        ++this.l;
+        ++this.type;
+        this.setImage(this.type);
+    }
     block.prototype.hitBox = function(target) {
         if(target.x && target.y && target.w && target.h) {
             return !(
@@ -35,8 +42,9 @@ let Block = (function() {
         }
     };
     block.prototype.damage = function() {
-        --this.liveValue;
-        if(this.liveValue <= 0) {
+        --this.l;
+        log('撞 ',this.l)
+        if(this.l <= 0) {
             this.x = this.y = this.w = this. h = 0;
         }
     };

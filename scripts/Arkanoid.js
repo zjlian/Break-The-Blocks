@@ -53,19 +53,17 @@ let Arkanoid = (function () {
         clearInterval(this.run);
         this.clearScreen();
         drawGrid(this.context);
-        let blocks = [];
+        let tmpBlocks = [];
 
         function addBlock(e) {
             let curX = Math.floor(e.offsetX / 64),
                 curY = Math.floor(e.offsetY / 32);
             log('x:' + curX + ' y:' +curY);
 
-            let status = hasBlock(blocks, curX, curY);
+            let status = hasBlock(tmpBlocks, curX, curY);
             if(status !== -1) {
-                let tmpBlock = blocks[status];
-                if(tmpBlock.l === 2) return;
-                tmpBlock.l = 2;
-                tmpBlock.typr = 1;
+                let tmpBlock = tmpBlocks[status];
+                tmpBlock.levelUp();
 
                 that.context.fillStyle = '#eacd76';
                 that.context.fillRect(tmpBlock.x, tmpBlock.y, 64, 32);
@@ -73,7 +71,7 @@ let Arkanoid = (function () {
                 let tmpBlock = new Block();
                 tmpBlock.x = curX * 64;
                 tmpBlock.y = curY * 32;
-                blocks.push(tmpBlock);
+                tmpBlocks.push(tmpBlock);
 
                 that.context.fillStyle = '#4b5cc4';
                 that.context.fillRect(tmpBlock.x, tmpBlock.y, 64, 32);
@@ -82,10 +80,18 @@ let Arkanoid = (function () {
         }
         this.canvas.addEventListener('mousedown', addBlock);
 
-
+        window.addEventListener('keyup', (event) => {
+            if(event.key === 'q') {
+                that.canvas.removeEventListener('mousedown',addBlock);
+                blocks = tmpBlocks;
+                log(tmpBlocks);
+                that.exitEditMode();
+            }
+        });
     };
-    /*
+    
     arkanoid.prototype.exitEditMode = function() {
+        let that = this;
         this.clearScreen();
 
         this.run = setInterval(function() {
@@ -101,7 +107,9 @@ let Arkanoid = (function () {
             that.clearScreen();
             that.draw();
         }, 1000/60);
-    };*/
+        
+        main();
+    };
 
     //helper function
     function drawGrid(ct) {
