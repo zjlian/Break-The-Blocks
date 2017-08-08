@@ -22,14 +22,14 @@ let Block = (function() {
         return imgs;
     })();
 
-    block.prototype.setImage = function(typeCode) {
-        this.image = this.images[typeCode];
+    block.prototype.updateImage = function() {
+        this.image = this.images[this.type];
     };
     block.prototype.levelUp = function() {
         if(this.type > this.levelLimit) return;
         ++this.l;
         ++this.type;
-        this.setImage(this.type);
+        this.updateImage();
     }
     block.prototype.hitBox = function(target) {
         if(target.x && target.y && target.w && target.h) {

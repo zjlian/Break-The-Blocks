@@ -7,6 +7,9 @@ let Arkanoid = (function () {
 
         this.keydowns = [];
         this.actions = [];
+
+        //status
+        this.paused = false;
         
         window.addEventListener('keydown', function(event) {
             that.keydowns[event.key] = true;
@@ -16,7 +19,8 @@ let Arkanoid = (function () {
             that.keydowns[event.key] = false;
         });
         
-        this.run = setInterval(function() {
+        this.timers = setInterval(function() {
+            if(that.paused) return;
             let keys = Object.keys(that.actions);
             for(let i = 0; i < keys.length; i++) {
                 let key = keys[i];
@@ -28,29 +32,35 @@ let Arkanoid = (function () {
             that.update();
             that.clearScreen();
             that.draw();
-        }, 1000/60);
+        }, 1000/this.FPS);
     }
-
+    arkanoid.prototype.FPS = 30;
+    //按下时按键行为注册
     arkanoid.prototype.registerAction = function(key, callback) {
         this.actions[key] = callback;
     };
 
+    //update()和draw()需要自己覆盖定义逻辑
     arkanoid.prototype.update = function() {
-    };
-
-    arkanoid.prototype.drawImage = function(imageObj) {
-        this.context.drawImage(imageObj.image, imageObj.x, imageObj.y, imageObj.w, imageObj.h);
-    };
-    arkanoid.prototype.clearScreen = function() {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     };
     arkanoid.prototype.draw = function() {
        this.drawImage(paddle);
     };
 
+    arkanoid.prototype.run = function() {}
+
+    arkanoid.prototype.drawImage = function(imageObj) {
+        //log(imageObj.image);
+        this.context.drawImage(imageObj.image, imageObj.x, imageObj.y, imageObj.w, imageObj.h);
+    };
+    arkanoid.prototype.clearScreen = function() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    };
+    
+
     arkanoid.prototype.editMode = function() {
         let that = this;
-        clearInterval(this.run);
+        this.paused = true;
         this.clearScreen();
         drawGrid(this.context);
         let tmpBlocks = [];
@@ -94,20 +104,22 @@ let Arkanoid = (function () {
         let that = this;
         this.clearScreen();
 
-        this.run = setInterval(function() {
-            let keys = Object.keys(that.actions);
-            for(let i = 0; i < keys.length; i++) {
-                let key = keys[i];
-                if(that.keydowns[key]) {
-                    //调用与被按下按键注册绑定的函数
-                    that.actions[key]();
-                }
-            }
-            that.update();
-            that.clearScreen();
-            that.draw();
-        }, 1000/60);
-        
+        this.paused = false;
+
+        // this.timers = setInterval(function() {
+        //     let keys = Object.keys(that.actions);
+        //     for(let i = 0; i < keys.length; i++) {
+        //         let key = keys[i];
+        //         if(that.keydowns[key]) {
+        //             //调用与被按下按键注册绑定的函数
+        //             that.actions[key]();
+        //         }
+        //     }
+        //     that.update();
+        //     that.clearScreen();
+        //     that.draw();
+        // }, 1000/this.FPS);
+
         main();
     };
 

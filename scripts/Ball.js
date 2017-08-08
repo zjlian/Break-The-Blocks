@@ -1,12 +1,12 @@
 let Ball = (function() {
     function ball(imagePath) {
         this.image = imageFromPath(imagePath);
-        this.x = 0;
-        this.y = 0;
-        this.speedX = 2;
-        this.speedY = -2;
         this.w = 32;
         this.h = 32;
+        this.x = -this.w;
+        this.y = -this.h;
+        this.speedX = 2;
+        this.speedY = -2;
         this.fired = false;
     }
     ball.prototype.setImage = function(image) {
