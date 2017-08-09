@@ -34,7 +34,7 @@ let Arkanoid = (function () {
             that.draw();
         }, 1000/this.FPS);
     }
-    arkanoid.prototype.FPS = 30;
+    arkanoid.prototype.FPS = 60;
     //按下时按键行为注册
     arkanoid.prototype.registerAction = function(key, callback) {
         this.actions[key] = callback;
@@ -44,14 +44,25 @@ let Arkanoid = (function () {
     arkanoid.prototype.update = function() {
     };
     arkanoid.prototype.draw = function() {
-       this.drawImage(paddle);
+       this.drawModule(paddle);
     };
 
     arkanoid.prototype.run = function() {}
 
-    arkanoid.prototype.drawImage = function(imageObj) {
-        //log(imageObj.image);
-        this.context.drawImage(imageObj.image, imageObj.x, imageObj.y, imageObj.w, imageObj.h);
+    arkanoid.prototype.drawModule = function(module) {
+        
+        let img;
+
+        if(module.images.length) {
+            img = module.images[module.type];
+            // log('传入的模块： ', module);
+            // log('模块里的图片：', module.images);
+            // log('获取到的图片： ', img);
+        } else {
+            img = module.images;
+        }
+        
+        this.context.drawImage(img, module.x, module.y, module.w, module.h);
     };
     arkanoid.prototype.clearScreen = function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -68,7 +79,7 @@ let Arkanoid = (function () {
         function addBlock(e) {
             let curX = Math.floor(e.offsetX / 64),
                 curY = Math.floor(e.offsetY / 32);
-            log('x:' + curX + ' y:' +curY);
+            //log('x:' + curX + ' y:' +curY);
 
             let status = hasBlock(tmpBlocks, curX, curY);
             if(status !== -1) {
@@ -94,7 +105,7 @@ let Arkanoid = (function () {
             if(event.key === 'q') {
                 that.canvas.removeEventListener('mousedown',addBlock);
                 blocks = tmpBlocks;
-                log(tmpBlocks);
+                //log(tmpBlocks);
                 that.exitEditMode();
             }
         });

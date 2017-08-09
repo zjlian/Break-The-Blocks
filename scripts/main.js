@@ -1,20 +1,15 @@
-let log = console.log.bind(console);
 
-function imageFromPath(path) {
-    let image = new Image();
-    image.src = path;
-    return image;
-}
 function loadLevel(o) {
     let blocks = [];
     let count = o.length * o[0].length;
     //for(let i = 0; i < )
 }
 
-let game = new Arkanoid('idCanvas');
+
 let paddle = new Paddle('images/paddle.png');
 let ball = new Ball('images/ball.png');
 let blocks = [];
+let game = new Arkanoid('idCanvas');
 
 function main() {
     /*
@@ -32,9 +27,7 @@ function main() {
     //log(JSON.stringify(blocks))
     //console.dir(JSON.stringify(blocks));
 
-    
-    
-    game.context.drawImage(paddle.image, paddle.x, paddle.y, paddle.w, paddle.h);
+    game.drawModule(paddle);
 
     game.update = function() {
         ball.move();
@@ -63,17 +56,20 @@ function main() {
         });
     };
     game.draw = function() {
-        game.drawImage(paddle);
-        game.drawImage(ball);
-        //game.drawImage(block)
+        game.context.fillStyle = '#F0FFF0';
+        game.context.fillRect(0, 0, 960, 960);
+        game.drawModule(paddle);
+        game.drawModule(ball);
+        //game.drawModule(block)
         // for(let i = 0; i < blocks.length; i++)  {
         //     for(let j = 0; j < blocks[i].length; j++) {
-        //         game.drawImage(blocks[i][j]);
+        //         game.drawModule(blocks[i][j]);
         //     }
         // }
         blocks.map((b) => {
-            game.drawImage(b);
-        });        
+            //log(b);
+            game.drawModule(b);
+        });
     };
 
     ball.fire = function() {

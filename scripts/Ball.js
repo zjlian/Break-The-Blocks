@@ -1,14 +1,17 @@
 let Ball = (function() {
     function ball(imagePath) {
-        this.image = imageFromPath(imagePath);
+        this.image = imagePath;
         this.w = 32;
         this.h = 32;
-        this.x = -this.w;
-        this.y = -this.h;
+        this.x = 960;
+        this.y = 960;
         this.speedX = 2;
         this.speedY = -2;
         this.fired = false;
     }
+    ball.prototype.images = (function() {
+    return imageFromPath('images/ball.png');
+    }());
     ball.prototype.setImage = function(image) {
         this.image = image;
     };

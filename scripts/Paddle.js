@@ -1,14 +1,18 @@
 let Paddle = (function() {
     function paddle(imagePath) {
-        this.image = imageFromPath(imagePath);
+        this.image = imagePath;
         this.w = 256;
         this.h = 8;
         this.x = 0;
         this.y = 640- this.h;
         this.speed = 32;   
+        
     }
-    paddle.prototype.setImage = function(image) {
-        this.image = image;
+    paddle.prototype.images = (function() {
+        return imageFromPath('images/paddle.png');
+    }());
+    paddle.prototype.setImage = function(imagePath) {
+        this.image = imagePath;
     };
     paddle.prototype.moveLeft = function() {
         if(this.x <= 0) return;
