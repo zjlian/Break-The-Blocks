@@ -1,40 +1,71 @@
+// let Paddle = (function() {
+//     function paddle(imagePath) {
+//         this.image = imagePath;
+//         this.w = 256;
+//         this.h = 8;
+//         this.halfWidth = this.width * 0.5;
+//         this.halfHeight = this.height * 0.5;
+
+//         this.x = 0;
+//         this.y = 640- this.h;
+//         this.vx = 32;
+//         this.vy =  0;
+
+//         this.restitution = 1;
+//     }
+//     paddle.prototype.images = (function() {
+//         return imageFromPath('images/paddle.png');
+//     }());
+//     paddle.prototype.setImage = function(imagePath) {
+//         this.image = imagePath;
+//     };
+//     paddle.prototype.moveLeft = function() {
+//         if(this.x <= 0) return;
+//         this.x -= this.speed;
+//     };
+//     paddle.prototype.moveRight = function() {
+//         if(this.x + this.w >= 960) return;
+//         this.x += this.speed;
+//     };
+//     paddle.prototype.hitBox = function(target) {
+//         let CD = new CollisionDetector();
+//         if(CD.collideRect(target, this)) {
+//             CD.resolveElastic(target, this);
+//         }
+//     };
+//     paddle.prototype.widen = function() {
+//         this.w += 16;
+//     }
+
+//     return paddle;
+// })();
 let Paddle = (function() {
-    function paddle(imagePath) {
-        this.image = imagePath;
+    function paddle() {
+        PhysicsEntity.call(this);
+
         this.w = 256;
         this.h = 8;
+
         this.x = 0;
         this.y = 640- this.h;
-        this.speed = 32;   
-        
+        this.vx = 32;
+
+        this.updateBounds();
     }
+    inheritPrototype(paddle, PhysicsEntity);
+    
     paddle.prototype.images = (function() {
         return imageFromPath('images/paddle.png');
     }());
-    paddle.prototype.setImage = function(imagePath) {
-        this.image = imagePath;
-    };
+
     paddle.prototype.moveLeft = function() {
         if(this.x <= 0) return;
-        this.x -= this.speed;
+        this.x -= this.vx;
     };
     paddle.prototype.moveRight = function() {
         if(this.x + this.w >= 960) return;
-        this.x += this.speed;
+        this.x += this.vx;
     };
-    paddle.prototype.hitBox = function(target) {
-        if(target.x && target.y && target.w && target.h) {
-            return !(
-                ((this.y + this.h) < target.y)   ||
-                (this.y > (target.y + target.h)) ||
-                ((this.x + this.w) < target.x )  ||
-                (this.x > (target.x + target.w))
-            );
-        }
-    };
-    paddle.prototype.widen = function() {
-        this.w += 16;
-    }
 
     return paddle;
 })();

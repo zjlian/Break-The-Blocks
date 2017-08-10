@@ -1,20 +1,23 @@
 let Ball = (function() {
-    function ball(imagePath) {
-        this.image = imagePath;
+    function ball() {
+        PhysicsEntity.call(this);
+
         this.w = 32;
         this.h = 32;
         this.x = 960;
         this.y = 960;
-        this.speedX = 2;
-        this.speedY = -2;
+        this.vx = 2;
+        this.vy = -2;
         this.fired = false;
-    }
+
+        this.updateBounds();
+    } 
+    inheritPrototype(ball, PhysicsEntity);
+
     ball.prototype.images = (function() {
     return imageFromPath('images/ball.png');
     }());
-    ball.prototype.setImage = function(image) {
-        this.image = image;
-    };
+
     ball.prototype.fire = function() {
         this.fired = true;
     }

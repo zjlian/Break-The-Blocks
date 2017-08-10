@@ -6,23 +6,13 @@ function loadLevel(o) {
 }
 
 
-let paddle = new Paddle('images/paddle.png');
-let ball = new Ball('images/ball.png');
+let paddle = new Paddle();
+let ball = new Ball();
 let blocks = [];
 let game = new Arkanoid('idCanvas');
 
 function main() {
-    /*
-    for(let i = 0; i < 8; i++) {
-        blocks[i] = [];
-        for(let j = 0; j < 14; j++) {
-            blocks[i][j] = new Block();
-            blocks[i][j].x = j * blocks[i][j].w + 32;
-            blocks[i][j].y = i * blocks[i][j].h;
-        }
-    }*/
-    //let block = new Block('images/block.png');
-    
+
     //log(LZString.compress(JSON.stringify(blocks)));
     //log(JSON.stringify(blocks))
     //console.dir(JSON.stringify(blocks));
@@ -31,22 +21,12 @@ function main() {
 
     game.update = function() {
         ball.move();
-        if(paddle.hitBox(ball)) {
-            ball.y = paddle.y - ball.h;
-            ball.speedY = -ball.speedY;
-            //log('重叠');
-        }
-        // for(let i = 0; i < blocks.length; i++)  {
-        //     for(let j = 0; j < blocks[i].length; j++) {
-        //         let block = blocks[i][j];
-        //         if(block.hitBox(ball)) {
-        //             ball.y = block.y + block.h + ball.h;
-        //             ball.speedY = -ball.speedY;
-        //             //log('重叠');
-        //             block.damage();
-        //         }
-        //     }
+        // if(paddle.hitBox(ball)) {
+        //     ball.y = paddle.y - ball.h;
+        //     ball.speedY = -ball.speedY;
+        //     //log('重叠');
         // }
+
         blocks.map((b) => {
             if(b.hitBox(ball)) {
                 ball.y = b.y + b.h + ball.h;

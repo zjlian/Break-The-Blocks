@@ -50,16 +50,16 @@ let Arkanoid = (function () {
     arkanoid.prototype.run = function() {}
 
     arkanoid.prototype.drawModule = function(module) {
-        
         let img;
-
+        // log('传入的模块： ', module); 
+        // log('模块里的图片：', module.images);
+        
         if(module.images.length) {
             img = module.images[module.type];
-            // log('传入的模块： ', module);
-            // log('模块里的图片：', module.images);
             // log('获取到的图片： ', img);
         } else {
             img = module.images;
+            // log('获取到的图片： ', img);
         }
         
         this.context.drawImage(img, module.x, module.y, module.w, module.h);
