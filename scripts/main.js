@@ -26,11 +26,14 @@ function main() {
         //     ball.speedY = -ball.speedY;
         //     //log('重叠');
         // }
+        //log(game.collision.collideRect(ball, paddle));
+        if(game.collision.collideRect(ball, paddle)) {
+            game.collision.resolveElastic(ball, paddle);
+        }
 
         blocks.map((b) => {
-            if(b.hitBox(ball)) {
-                ball.y = b.y + b.h + ball.h;
-                ball.speedY = -ball.speedY;
+            if(game.collision.collideRect(ball, b)) {
+                game.collision.resolveElastic(ball, b);
                 b.damage(); 
             }
         });
@@ -47,7 +50,6 @@ function main() {
         //     }
         // }
         blocks.map((b) => {
-            //log(b);
             game.drawModule(b);
         });
     };
@@ -55,10 +57,10 @@ function main() {
     ball.fire = function() {
         if(ball.fired) return;
         ball.fired = true;
-        ball.x = paddle.x + paddle.w / 2 - ball.w;
-        ball.y = paddle.y - ball.h;
-        ball.speedX = 2;
-        ball.speedY = -8;
+        ball.x = paddle.x + paddle.width / 2 - ball.width;
+        ball.y = paddle.y - ball.height;
+        ball.vx = 2;
+        ball.vy = -8;
     }
 
     game.registerAction('ArrowLeft', function() {
@@ -70,11 +72,6 @@ function main() {
     game.registerAction('ArrowUp', function() {
         ball.fire();
     });
-
-
-    
-
-    
 
 }
 

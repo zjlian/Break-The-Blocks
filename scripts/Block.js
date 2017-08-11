@@ -1,12 +1,16 @@
 let Block = (function() {
     function block() {
-        this.x = 0;
-        this.y = 0;
-        this.w = 64;
-        this.h = 32;
+        PhysicsEntity.call(this);
+        this.width = 64;
+        this.height = 32;
+
         this.type = 0;
         this.l = 1; //方块生命值
+
+        this.updateBounds();
     }
+    inheritPrototype(block, PhysicsEntity);
+
     block.prototype.levelLimit = 1;
     block.prototype.images = (function() {
         let imgs = [];
@@ -42,7 +46,7 @@ let Block = (function() {
         --this.l;
         //log('撞 ',this.l)
         if(this.l <= 0) {
-            this.x = this.y = this.w = this. h = 0;
+            this.x = this.y = this.width = this.height = 0;
         }
     };
 

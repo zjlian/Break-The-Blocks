@@ -4,8 +4,8 @@ const STICKY_THRESHOLD = 0.0004;
 //矩形 物理实体
 let PhysicsEntity = (function() {
     function physicsEntity() {
-        this.width = 16;
-        this.height = 16;
+        this.width = 0;
+        this.height = 0;
         this.halfWidth = this.width * 0.5;
         this.halfHeight = this.height * 0.5;
 
@@ -83,7 +83,7 @@ let CollisionDetector = (function() {
         let absDY = Math.abs(dy);
 
         //当重叠量相减小于0.1时，那么两个对象的两个角发生了碰撞
-        if(Math.abs(absDX - absDY) < 0.1) {
+        if(Math.abs(absDX - absDY) < 0.03) {
             //从x轴靠近
             if(dx < 0) {
                 moving.x = entity.getRight();
@@ -125,7 +125,7 @@ let CollisionDetector = (function() {
             if(dy < 0) {
                 moving.y = entity.getBottom();
             } else {
-                moving.y = entity.getTop() + moving.height;
+                moving.y = entity.getTop() - moving.height;
             }
             moving.vy = -moving.vy * entity.restitution;
             if(Math.abs(moving.vy) < STICKY_THRESHOLD) {
@@ -133,4 +133,6 @@ let CollisionDetector = (function() {
             }
         }
     };
+
+    return cd;
 })();

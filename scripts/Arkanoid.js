@@ -10,6 +10,8 @@ let Arkanoid = (function () {
 
         //status
         this.paused = false;
+
+        this.collision = new CollisionDetector();
         
         window.addEventListener('keydown', function(event) {
             that.keydowns[event.key] = true;
@@ -62,7 +64,7 @@ let Arkanoid = (function () {
             // log('获取到的图片： ', img);
         }
         
-        this.context.drawImage(img, module.x, module.y, module.w, module.h);
+        this.context.drawImage(img, module.x, module.y, module.width, module.height);
     };
     arkanoid.prototype.clearScreen = function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);

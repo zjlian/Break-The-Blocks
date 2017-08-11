@@ -5,14 +5,13 @@ function imageFromPath(path) {
     image.src = path;
     return image;
 }
-function object(o) {
-    function F() { }
+function objectClone(o) {
+    function F(){}
     F.prototype = o;
     return new F();
 }
 function inheritPrototype(subType, superType) {
-    let prototype = object(superType.prototype);
-    log(prototype);
+    let prototype = objectClone(superType.prototype);
     prototype.constructor = subType;
     subType.prototype = prototype;
 }
