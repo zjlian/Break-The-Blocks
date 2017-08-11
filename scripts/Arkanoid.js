@@ -11,6 +11,7 @@ let Arkanoid = (function () {
         //status
         this.paused = false;
 
+        this.modules = new Map();
         this.collision = new CollisionDetector();
         
         window.addEventListener('keydown', function(event) {
@@ -42,6 +43,17 @@ let Arkanoid = (function () {
         this.actions[key] = callback;
     };
 
+    arkanoid.prototype.addModule = function(string, module) {
+        if(!(module.width && module.height &&
+           module.x && module.y && module.images)) {
+               return;
+           }
+        this.modules.set(string, module);
+    }
+    arkanoid.prototype.getModule = function(string) {
+        return this.modules.get(string);
+    }
+
     //update()和draw()需要自己覆盖定义逻辑
     arkanoid.prototype.update = function() {
     };
@@ -53,17 +65,11 @@ let Arkanoid = (function () {
 
     arkanoid.prototype.drawModule = function(module) {
         let img;
-        // log('传入的模块： ', module); 
-        // log('模块里的图片：', module.images);
-        
         if(module.images.length) {
             img = module.images[module.type];
-            // log('获取到的图片： ', img);
         } else {
             img = module.images;
-            // log('获取到的图片： ', img);
         }
-        
         this.context.drawImage(img, module.x, module.y, module.width, module.height);
     };
     arkanoid.prototype.clearScreen = function() {
@@ -118,20 +124,6 @@ let Arkanoid = (function () {
         this.clearScreen();
 
         this.paused = false;
-
-        // this.timers = setInterval(function() {
-        //     let keys = Object.keys(that.actions);
-        //     for(let i = 0; i < keys.length; i++) {
-        //         let key = keys[i];
-        //         if(that.keydowns[key]) {
-        //             //调用与被按下按键注册绑定的函数
-        //             that.actions[key]();
-        //         }
-        //     }
-        //     that.update();
-        //     that.clearScreen();
-        //     that.draw();
-        // }, 1000/this.FPS);
 
         main();
     };

@@ -44,12 +44,13 @@ let Paddle = (function() {
         PhysicsEntity.call(this);
 
         this.width = 256;
-        this.height = 8;
+        this.height = 16;
 
         this.x = 0;
-        this.y = 640- this.height;
-        this.vx = 32;
+        this.y = 640 - this.height * 2;
+        this.vx = 16;
 
+        this.restitution = 2;
         this.updateBounds();
     }
     inheritPrototype(paddle, PhysicsEntity);

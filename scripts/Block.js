@@ -7,6 +7,7 @@ let Block = (function() {
         this.type = 0;
         this.l = 1; //方块生命值
 
+        this.restitution = 0.8;
         this.updateBounds();
     }
     inheritPrototype(block, PhysicsEntity);
@@ -32,16 +33,6 @@ let Block = (function() {
         ++this.l;
         ++this.type;
     }
-    block.prototype.hitBox = function(target) {
-        if(target.x && target.y && target.w && target.h) {
-            return !(
-                ((this.y + this.h) < target.y)   ||
-                (this.y > (target.y + target.h)) ||
-                ((this.x + this.w) < target.x )  ||
-                (this.x > (target.x + target.w))
-            );
-        }
-    };
     block.prototype.damage = function() {
         --this.l;
         //log('撞 ',this.l)
