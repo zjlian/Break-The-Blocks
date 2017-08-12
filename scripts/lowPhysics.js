@@ -1,7 +1,7 @@
 //最低速度
 const STICKY_THRESHOLD = 0.0004;
 //引力
-const GRAVITY_Y =  0.99;
+const GRAVITY_Y =  9.8;
 const GRAVITY_X =  0;
 //常量，标记物体是否受引力影响
 const KINEMATIC = 'kinematic'; //不受
@@ -147,14 +147,16 @@ let CollisionDetector = (function() {
 
     return cd;
 })();
-let lastTime = 0;
+let lastTime;
 let Engine = (function() {
-    function engine(entities) {
+    function engine(entities, pixelsPerMeter) {
         this.collision = new CollisionDetector();
         this.entities = entities;
+        this.pixelsPerMeter = pixelsPerMeter;
     }
 
     engine.prototype.step = function(time) {
+        let that = this;
         if(lastTime == undefined) {
             lastTime = (+new Date());
         }
@@ -171,13 +173,13 @@ let Engine = (function() {
             //log(entity);
             switch (val.physicsType) {
                 case DYNAMIC:
-                   
-                    entity.x  += entity.vx * elapsed;
-                    entity.y  += entity.vy * elapsed;
+                    entity.vy += gy;
+                    entity.vx += gx;
                     entity.vx += entity.ax * elapsed;
                     entity.vy += entity.ay * elapsed;
-                    entity.vy *= .99;
-                    //log(entity.x, entity.y);
+                    entity.x  += entity.vx * elapsed * that.pixelsPerMeter;
+                    entity.y  += entity.vy * elapsed * that.pixelsPerMeter;
+
                     break;
                 case KINEMATIC:
                     //log(entity);

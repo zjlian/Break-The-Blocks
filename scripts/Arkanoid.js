@@ -4,7 +4,8 @@ let Arkanoid = (function () {
         let that = this;
         this.canvas = document.getElementById(canvasID);
         this.context = this.canvas.getContext('2d');
-
+        this.pixelsPerMeter = this.canvas.width / 9.6;
+        
         this.keydowns = [];
         this.actions = [];
 
@@ -13,7 +14,7 @@ let Arkanoid = (function () {
 
         this.modules = new Map();
         this.collision = new CollisionDetector();
-        this.engine = new Engine(this.modules);
+        this.engine = new Engine(this.modules, this.pixelsPerMeter);
         
         window.addEventListener('keydown', function(event) {
             that.keydowns[event.key] = true;

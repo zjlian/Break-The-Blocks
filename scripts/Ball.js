@@ -6,10 +6,10 @@ let Ball = (function() {
         this.height = 16;
         this.x = 960;
         this.y = 960;
-        this.vx = 4;
-        this.vy = -16;
+        this.vx = 0;
+        this.vy = -8;
         this.ax = 0;
-        this.ay = .25;
+        this.ay = 0;
         this.fired = false;
 
         this.restitution = 1;
@@ -31,7 +31,7 @@ let Ball = (function() {
         this.x = 960 / 2;
         this.y = 640 - (16 * 2 + this.height);
         this.vx = (Math.abs(this.vx) < 16 ? this.vx : 8) * (Math.random() < 0.5 ? 1 : -1);
-        this.vy = -64;
+        this.vy = -8;
     }
 
     ball.prototype.move = function() {

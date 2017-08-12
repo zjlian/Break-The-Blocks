@@ -50,7 +50,7 @@ let Paddle = (function() {
         this.y = 640 - this.height * 2;
         //this.vx = 0;
 
-        this.restitution = 2;
+        this.restitution = 1.01;
         this.updateBounds();
     }
     inheritPrototype(paddle, PhysicsEntity);
