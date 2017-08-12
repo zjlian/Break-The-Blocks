@@ -1,5 +1,11 @@
 //最低速度
 const STICKY_THRESHOLD = 0.0004;
+//引力
+const GRAVITY_Y =  0.99;
+const GRAVITY_X =  0;
+//常量，标记物体是否受引力影响
+const KINEMATIC = 'kinematic'; //不受
+const DYNAMIC   = 'dynamic';
 
 //矩形 物理实体
 let PhysicsEntity = (function() {
@@ -13,8 +19,13 @@ let PhysicsEntity = (function() {
         this.y = 0;
         this.vx = 0;
         this.vy =  0;
+        //加速度
+        this.ax = 0;
+        this.ay = 0;
+
         //弹力
         this.restitution = 1;
+        this.physicsType = KINEMATIC;
     }
     physicsEntity.prototype.updateBounds = function() {
         this.halfWidth = this.width * 0.5;
@@ -135,4 +146,51 @@ let CollisionDetector = (function() {
     };
 
     return cd;
+})();
+let lastTime = 0;
+let Engine = (function() {
+    function engine(entities) {
+        this.collision = new CollisionDetector();
+        this.entities = entities;
+    }
+
+    engine.prototype.step = function(time) {
+        if(lastTime == undefined) {
+            lastTime = (+new Date());
+        }
+        let elapsed = time - lastTime;
+        elapsed = elapsed / 1000;
+        //log(elapsed);
+        let gx = GRAVITY_X * elapsed;
+        let gy = GRAVITY_Y * elapsed;
+        //let entity;
+
+        this.entities.forEach(function(val, key) {
+            //log(key, val);
+            entity = val;
+            //log(entity);
+            switch (val.physicsType) {
+                case DYNAMIC:
+                   
+                    entity.x  += entity.vx * elapsed;
+                    entity.y  += entity.vy * elapsed;
+                    entity.vx += entity.ax * elapsed;
+                    entity.vy += entity.ay * elapsed;
+                    entity.vy *= .99;
+                    //log(entity.x, entity.y);
+                    break;
+                case KINEMATIC:
+                    //log(entity);
+                    //entity.vx += entity.ax * elapsed;
+                    //entity.vy += entity.ay * elapsed;
+                    entity.x  += entity.vx * elapsed;
+                    entity.y  += entity.vy * elapsed;
+                    break;
+            }
+
+        });
+        lastTime = time;
+    }
+
+    return engine;
 })();

@@ -6,21 +6,26 @@ function loadLevel(o) {
 }
 
 
-let paddle = new Paddle();
-let ball = new Ball();
-let blocks = [];
+
 let game = new Arkanoid('idCanvas');
 
 function main() {
+
+    game.addModule('paddle', new Paddle());
+    game.addModule('ball', new Ball());
+    let blocks = [];
+    let paddle = game.getModule('paddle');
+    let ball = game.getModule('ball');
 
     //log(LZString.compress(JSON.stringify(blocks)));
     //log(JSON.stringify(blocks))
     //console.dir(JSON.stringify(blocks));
 
+
     game.drawModule(paddle);
 
     game.update = function() {
-        ball.move();
+        //ball.move();
         if(game.collision.collideRect(ball, paddle)) {
             game.collision.resolveElastic(ball, paddle);
         }

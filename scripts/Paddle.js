@@ -43,12 +43,12 @@ let Paddle = (function() {
     function paddle() {
         PhysicsEntity.call(this);
 
-        this.width = 256;
+        this.width = 128;
         this.height = 16;
 
         this.x = 0;
         this.y = 640 - this.height * 2;
-        this.vx = 16;
+        //this.vx = 0;
 
         this.restitution = 2;
         this.updateBounds();
@@ -61,11 +61,11 @@ let Paddle = (function() {
 
     paddle.prototype.moveLeft = function() {
         if(this.x <= 0) return;
-        this.x -= this.vx;
+        this.x -= 16;
     };
     paddle.prototype.moveRight = function() {
         if(this.x + this.width >= 960) return;
-        this.x += this.vx;
+        this.x += 16;
     };
 
     return paddle;

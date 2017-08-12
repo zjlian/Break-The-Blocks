@@ -13,6 +13,7 @@ let Arkanoid = (function () {
 
         this.modules = new Map();
         this.collision = new CollisionDetector();
+        this.engine = new Engine(this.modules);
         
         window.addEventListener('keydown', function(event) {
             that.keydowns[event.key] = true;
@@ -22,8 +23,8 @@ let Arkanoid = (function () {
             that.keydowns[event.key] = false;
         });
         
-        this.timers = setInterval(function() {
-            if(that.paused) return;
+        this.loop = function () {
+            //if(that.paused) return;
             let keys = Object.keys(that.actions);
             for(let i = 0; i < keys.length; i++) {
                 let key = keys[i];
@@ -32,33 +33,60 @@ let Arkanoid = (function () {
                     that.actions[key]();
                 }
             }
+            //log(now, lastTime, now - lastTime);
+            that.engine.step(+new Date());
             that.update();
             that.clearScreen();
             that.draw();
-        }, 1000/this.FPS);
+
+            that.showFPS();
+            that.timers = window.requestAnimationFrame(that.loop);
+        }
+        this.timers = window.requestAnimationFrame(this.loop);
+        //this.timers = setInterval(loop, 1000/this.FPS);
     }
-    arkanoid.prototype.FPS = 60;
+    let lastTime = 0;
+    let lastFpsUpdateTime = 0;
+    let lastFpsUpdate = 0;
+    arkanoid.prototype.calculateFps = function() {
+        let now  = (+new Date());
+        let fps = 1000 / (now - lastTime);
+        lastTime = now;
+        return fps;
+    };
+    arkanoid.prototype.showFPS = function() {
+        let fps = 0, time;
+        fps = this.calculateFps();
+
+        if(time === undefined) {
+            time = +new Date();
+        }
+        if(time - lastFpsUpdateTime > 300) {
+            lastFpsUpdateTime = time;
+            lastFpsUpdate = fps;
+        }
+
+        this.context.fillStyle = '#222';
+        this.context.fillText(lastFpsUpdate.toFixed() + ' FPS', 10, 20);
+    }
+
     //按下时按键行为注册
     arkanoid.prototype.registerAction = function(key, callback) {
         this.actions[key] = callback;
     };
 
     arkanoid.prototype.addModule = function(string, module) {
-        if(!(module.width && module.height &&
-           module.x && module.y && module.images)) {
-               return;
-           }
         this.modules.set(string, module);
-    }
+    };
     arkanoid.prototype.getModule = function(string) {
         return this.modules.get(string);
-    }
+    };
 
     //update()和draw()需要自己覆盖定义逻辑
     arkanoid.prototype.update = function() {
     };
     arkanoid.prototype.draw = function() {
-       this.drawModule(paddle);
+       //this.drawModule(paddle);
     };
 
     arkanoid.prototype.run = function() {}
@@ -78,8 +106,10 @@ let Arkanoid = (function () {
     
 
     arkanoid.prototype.editMode = function() {
+        log(this.timers);
+        window.cancelAnimationFrame(this.timers);
         let that = this;
-        this.paused = true;
+        //this.paused = true;
         this.clearScreen();
         drawGrid(this.context);
         let tmpBlocks = [];
@@ -123,9 +153,7 @@ let Arkanoid = (function () {
         let that = this;
         this.clearScreen();
 
-        this.paused = false;
-
-        main();
+        this.timers = window.requestAnimationFrame(this.loop);
     };
 
     //helper function
