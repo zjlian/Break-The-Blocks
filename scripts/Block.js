@@ -40,6 +40,9 @@ let Block = (function() {
             this.x = this.y = this.width = this.height = 0;
         }
     };
+    block.prototype.wasHit = function() {
+        this.damage;
+    }
 
     return block;
 })();

@@ -11,10 +11,14 @@ let Arkanoid = (function () {
 
         //status
         this.paused = false;
-
+        this.FPS = 0;
+        this.lastTime;
+ 
         this.modules = new Map();
+        this.barriers = [];
+
         this.collision = new CollisionDetector();
-        this.engine = new Engine(this.modules, this.pixelsPerMeter);
+        this.engine = new Engine(this.modules, this.barriers, this.pixelsPerMeter);
         
         window.addEventListener('keydown', function(event) {
             that.keydowns[event.key] = true;
@@ -45,14 +49,16 @@ let Arkanoid = (function () {
         }
         this.timers = window.requestAnimationFrame(this.loop);
         //this.timers = setInterval(loop, 1000/this.FPS);
+        this.createEdge();
     }
-    let lastTime = 0;
+    
     let lastFpsUpdateTime = 0;
     let lastFpsUpdate = 0;
     arkanoid.prototype.calculateFps = function() {
         let now  = (+new Date());
-        let fps = 1000 / (now - lastTime);
-        lastTime = now;
+        let fps = 1000 / (now - this.lastTime);
+        this.lastTime = now;
+        this.FPS = parseInt(fps);
         return fps;
     };
     arkanoid.prototype.showFPS = function() {
@@ -84,12 +90,8 @@ let Arkanoid = (function () {
     };
 
     //update()和draw()需要自己覆盖定义逻辑
-    arkanoid.prototype.update = function() {
-    };
-    arkanoid.prototype.draw = function() {
-       //this.drawModule(paddle);
-    };
-
+    arkanoid.prototype.update = function() {};
+    arkanoid.prototype.draw = function() {};
     arkanoid.prototype.run = function() {}
 
     arkanoid.prototype.drawModule = function(module) {
@@ -104,7 +106,40 @@ let Arkanoid = (function () {
     arkanoid.prototype.clearScreen = function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     };
-    
+    arkanoid.prototype.createEdge = function() {
+        let topEdge = new PhysicsEntity();
+        let rightEdge = new PhysicsEntity();
+        let bottomEdge = new PhysicsEntity();
+        let leftEdge = new PhysicsEntity();
+
+        topEdge.width = this.canvas.width + 100;
+        topEdge.height = 200;
+        topEdge.x = -50;
+        topEdge.y = -topEdge.height;
+
+        rightEdge.width = 200;
+        rightEdge.height = this.canvas.height + 100;
+        rightEdge.x = this.canvas.width;
+        rightEdge.y = -50;
+
+        bottomEdge.width = this.canvas.width + 100;
+        bottomEdge.height = 200;
+        bottomEdge.x = -50;
+        bottomEdge.y = this.canvas.height;
+
+        leftEdge.width = 200;
+        leftEdge.height = this.canvas.height + 100;
+        leftEdge.x = -leftEdge.width;
+        leftEdge.y = -50;
+
+        topEdge.updateBounds();
+        rightEdge.updateBounds();
+        bottomEdge.updateBounds();
+        leftEdge.updateBounds();
+        
+
+        this.barriers.push(topEdge, rightEdge, bottomEdge, leftEdge);
+    };
 
     arkanoid.prototype.editMode = function() {
         log(this.timers);

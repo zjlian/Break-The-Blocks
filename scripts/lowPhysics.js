@@ -1,8 +1,8 @@
 //最低速度
 const STICKY_THRESHOLD = 0.0004;
 //引力
-const GRAVITY_Y =  9.8;
-const GRAVITY_X =  0;
+const GRAVITY_Y =  4;
+const GRAVITY_X =  0.2;
 //常量，标记物体是否受引力影响
 const KINEMATIC = 'kinematic'; //不受
 const DYNAMIC   = 'dynamic';
@@ -52,6 +52,8 @@ let PhysicsEntity = (function() {
     physicsEntity.prototype.getBottom = function() {
         return this.y + this.height;
     };
+
+    physicsEntity.prototype.wasHit = function() { };
 
     return physicsEntity;
 })();
@@ -147,14 +149,15 @@ let CollisionDetector = (function() {
 
     return cd;
 })();
-let lastTime;
+
 let Engine = (function() {
-    function engine(entities, pixelsPerMeter) {
+    function engine(entities, barriers, pixelsPerMeter) {
         this.collision = new CollisionDetector();
         this.entities = entities;
+        this.barriers = barriers;
         this.pixelsPerMeter = pixelsPerMeter;
     }
-
+    let lastTime;
     engine.prototype.step = function(time) {
         let that = this;
         if(lastTime == undefined) {
@@ -173,24 +176,36 @@ let Engine = (function() {
             //log(entity);
             switch (val.physicsType) {
                 case DYNAMIC:
-                    entity.vy += gy;
-                    entity.vx += gx;
+                    // entity.vy += gy;
+                    //entity.vx += entity.vx > 0 ? -gx : gx;
+                    entity.vx += entity.ax * elapsed + gx;
+                    entity.vy += entity.ay * elapsed + gy;
+                    entity.x  += entity.vx * elapsed * that.pixelsPerMeter;
+                    entity.y  += entity.vy * elapsed * that.pixelsPerMeter;
+                    break;
+                case KINEMATIC:
+                    //log(entity);
                     entity.vx += entity.ax * elapsed;
                     entity.vy += entity.ay * elapsed;
                     entity.x  += entity.vx * elapsed * that.pixelsPerMeter;
                     entity.y  += entity.vy * elapsed * that.pixelsPerMeter;
-
-                    break;
-                case KINEMATIC:
-                    //log(entity);
-                    //entity.vx += entity.ax * elapsed;
-                    //entity.vy += entity.ay * elapsed;
-                    entity.x  += entity.vx * elapsed;
-                    entity.y  += entity.vy * elapsed;
                     break;
             }
 
         });
+
+        //log(this.entities.get('ball').x, this.entities.get('ball').y);
+        //碰撞检测处理，仅检查game.module与game.barrier之间的碰撞
+        //同类有需要自行在game.update中调用实现
+        this.barriers.map(function(block) {
+            that.entities.forEach(function(moving) {
+                if(that.collision.collideRect(moving, block)) {
+                    that.collision.resolveElastic(moving, block);
+                    block.wasHit(); 
+                }
+            });
+        });
+
         lastTime = time;
     }
 
