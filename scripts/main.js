@@ -1,13 +1,29 @@
-
-function loadLevel(o) {
+let levelCode = '';
+function loadLevel(levelCode) {
+    game.barriers.splice(4, game.barriers.length -  4);
     let blocks = [];
-    let count = o.length * o[0].length;
-    //for(let i = 0; i < )
+    let jsonStr = LZString.decompress(levelCode);
+    let arr = JSON.parse(jsonStr);
+
+    arr.map(function(b) {
+        let block = new Block();
+        block.width = b.width;
+        block.height = b.height;
+        block.halfWidth = b.halfWidth;
+        block.halfHeight = b.halfHeight;
+        block.x = b.x;
+        block.y = b.y;
+        block.type = b.type;
+        block.l = b.l;
+        block.restitution = b.restitution;
+
+        game.barriers.push(block);
+    });
 }
 
 
 
-let game = new Arkanoid('idCanvas');
+let game = new GameFrame('idCanvas');
 
 function main() {
 
@@ -16,13 +32,6 @@ function main() {
     let blocks = [];
     let paddle = game.getModule('paddle');
     let ball = game.getModule('ball');
-
-    //log(LZString.compress(JSON.stringify(blocks)));
-    //log(JSON.stringify(blocks))
-    //console.dir(JSON.stringify(blocks));
-
-
-    game.drawModule(paddle);
 
     game.update = function() {
         if(game.collision.collideRect(ball, paddle)) {
@@ -35,17 +44,6 @@ function main() {
             ball.vx = 0;
             ball.fired = false;
         }
-        
-    };
-    game.draw = function() {
-        //game.context.fillStyle = '#F0FFF0';
-        //game.context.fillRect(0, 0, game.canvas.width, game.canvas.height);
-        game.drawModule(paddle);
-        game.drawModule(ball);
-
-        blocks.map((b) => {
-            game.drawModule(b);
-        });
     };
 
 

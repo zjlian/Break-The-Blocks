@@ -7,7 +7,7 @@ let Block = (function() {
         this.type = 0;
         this.l = 1; //方块生命值
 
-        this.restitution = 0.8;
+        this.restitution = 1;
         this.updateBounds();
     }
     inheritPrototype(block, PhysicsEntity);
@@ -24,9 +24,7 @@ let Block = (function() {
         return imgs;
     }());
 
-    // block.prototype.updateImage = function() {
-    //     this.image = this.images[this.type];
-    // };
+
     block.prototype.levelUp = function() {
         //log(this);
         if(this.l > this.levelLimit) return;
@@ -41,7 +39,7 @@ let Block = (function() {
         }
     };
     block.prototype.wasHit = function() {
-        this.damage;
+        this.damage();
     }
 
     return block;

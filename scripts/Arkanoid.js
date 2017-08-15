@@ -1,5 +1,5 @@
 
-let Arkanoid = (function () {
+let GameFrame = (function () {
     let lestTime;
     function arkanoid(canvasID) {
         let that = this;
@@ -12,16 +12,14 @@ let Arkanoid = (function () {
 
         //status
         this.FPS = 0;
-        this.startTime=0;
-        this.lastTime=0;
-        this.gameTime=0;
-
+        this.startTime=0;           //当前游戏开始的时间
+        this.lastTime=0;            //上一次requestAnimationFrame()调用的时间
+        this.gameTime=0;            //游戏经过的时间
         this.paused = false;
-        this.startedPauseAt = 0;
-
+        this.startedPauseAt = 0;    //调用暂停时的时间
  
-        this.modules = new Map();
-        this.barriers = [];
+        this.modules = new Map();   //储存可动的对象
+        this.barriers = [];         //储存不可动的障碍对象
 
         this.collision = new CollisionDetector();
         this.engine = new Engine(this);
@@ -35,12 +33,10 @@ let Arkanoid = (function () {
         });
         
         this.loop = function (time) {
-            //log(this.lastTime);
             let that = this;
             if(that.paused) {
                 setTimeout(()=>{
                     window.requestAnimationFrame(function(time) {
-                        //this.animate.call(this,time);
                         that.loop(time);
                         that.lastTime = time;
                     }) ; 
@@ -74,7 +70,6 @@ let Arkanoid = (function () {
             that.startTime = getTimeNow();
             that.loop(time);
         });
-        //this.timers = setInterval(loop, 1000/this.FPS);
         this.createEdge();
     }
     
@@ -86,7 +81,6 @@ let Arkanoid = (function () {
         if(this.lastTime === 0) {
             this.FPS = 60;
         } else {
-            //if(time - this.lastTime === 0) return;
             this.FPS = 1000 / (time - this.lastTime);
         }
 
@@ -101,7 +95,6 @@ let Arkanoid = (function () {
             this.startedPauseAt = now;
         } else {
             this.startTime = this.startTime + now - this.startedPauseAt;
-            //this.lastTime = 0;
         }
     };
 
@@ -119,7 +112,16 @@ let Arkanoid = (function () {
 
     //update()和draw()需要自己覆盖定义逻辑
     arkanoid.prototype.update = function() {};
-    arkanoid.prototype.draw = function() {};
+    arkanoid.prototype.draw = function() {
+        this.modules.forEach((val, key) => {
+            this.drawModule(val);
+        })
+        this.barriers.map(b => {
+            if(b.images !== undefined) {
+                this.drawModule(b);
+            }
+        });
+    };
     //arkanoid.prototype.run = function() {}
 
     arkanoid.prototype.drawModule = function(module) {
@@ -165,51 +167,27 @@ let Arkanoid = (function () {
         bottomEdge.updateBounds();
         leftEdge.updateBounds();
         
-
         this.barriers.push(topEdge, rightEdge, bottomEdge, leftEdge);
     };
 
     arkanoid.prototype.editMode = function() {
         if(this.paused) return;
         this.togglePaused();
-
         let that = this;
-        //this.paused = true;
+
         this.clearScreen();
         drawGrid(this.context);
         let tmpBlocks = [];
 
-        function addBlock(e) {
-            let curX = Math.floor(e.offsetX / 64),
-                curY = Math.floor(e.offsetY / 32);
-            //log('x:' + curX + ' y:' +curY);
+        this.canvas.addEventListener('mousedown', function(e) {
+            addBlock(e, tmpBlocks, that.context)
+        });
 
-            let status = hasBlock(tmpBlocks, curX, curY);
-            if(status !== -1) {
-                let tmpBlock = tmpBlocks[status];
-                tmpBlock.levelUp();
-
-                that.context.fillStyle = '#eacd76';
-                that.context.fillRect(tmpBlock.x, tmpBlock.y, 64, 32);
-            } else {
-                let tmpBlock = new Block();
-                tmpBlock.x = curX * 64;
-                tmpBlock.y = curY * 32;
-                tmpBlocks.push(tmpBlock);
-
-                that.context.fillStyle = '#4b5cc4';
-                that.context.fillRect(tmpBlock.x, tmpBlock.y, 64, 32);
-            }
-
-        }
-        this.canvas.addEventListener('mousedown', addBlock);
-
-        window.addEventListener('keyup', (event) => {
+        window.addEventListener('keyup', function(event) {
             if(event.key === 'q') {
                 if(!that.paused) return;
                 that.canvas.removeEventListener('mousedown',addBlock);
-                blocks = tmpBlocks;
-                //log(tmpBlocks);
+                levelCode =  LZString.compress(JSON.stringify(tmpBlocks));
                 that.exitEditMode();
             }
         });
@@ -220,9 +198,7 @@ let Arkanoid = (function () {
         this.clearScreen();
         this.togglePaused();
         
-        // this.timers = window.requestAnimationFrame(function(time) {
-        //     that.loop.call(that, time); 
-        // });
+        loadLevel(levelCode);
     };
 
     //helper function
@@ -247,6 +223,28 @@ let Arkanoid = (function () {
             }
         }
         return -1;
+    }
+    function addBlock(event, blocks, ct) {
+        let e = event;
+        let curX = Math.floor(e.offsetX / 64),
+            curY = Math.floor(e.offsetY / 32);
+
+        let status = hasBlock(blocks, curX, curY);
+        if(status !== -1) {
+            let tmpBlock = blocks[status];
+            tmpBlock.levelUp();
+
+            ct.fillStyle = '#eacd76';
+            ct.fillRect(tmpBlock.x, tmpBlock.y, 64, 32);
+        } else {
+            let tmpBlock = new Block();
+            tmpBlock.x = curX * 64;
+            tmpBlock.y = curY * 32;
+            blocks.push(tmpBlock);
+
+            ct.fillStyle = '#4b5cc4';
+            ct.fillRect(tmpBlock.x, tmpBlock.y, 64, 32);
+        }
     }
 
 
