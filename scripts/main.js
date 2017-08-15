@@ -35,6 +35,7 @@ function main() {
             ball.vx = 0;
             ball.fired = false;
         }
+        
     };
     game.draw = function() {
         //game.context.fillStyle = '#F0FFF0';
@@ -57,6 +58,12 @@ function main() {
     game.registerAction('ArrowUp', function() {
         ball.fire();
     });
+
+    window.addEventListener('keyup', function(event) {
+        if(event.key === 'p') {
+            game.togglePaused();
+        }
+    })
 
 }
 

@@ -15,3 +15,6 @@ function inheritPrototype(subType, superType) {
     prototype.constructor = subType;
     subType.prototype = prototype;
 }
+function getTimeNow() {
+    return +new Date();
+}

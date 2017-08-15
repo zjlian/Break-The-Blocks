@@ -1,24 +1,30 @@
 
 let Arkanoid = (function () {
+    let lestTime;
     function arkanoid(canvasID) {
         let that = this;
         this.canvas = document.getElementById(canvasID);
         this.context = this.canvas.getContext('2d');
-        this.pixelsPerMeter = this.canvas.width / 9.6;
+        this.pixelsPerMeter = this.canvas.width / 10;
         
         this.keydowns = [];
         this.actions = [];
 
         //status
-        this.paused = false;
         this.FPS = 0;
-        this.lastTime;
+        this.startTime=0;
+        this.lastTime=0;
+        this.gameTime=0;
+
+        this.paused = false;
+        this.startedPauseAt = 0;
+
  
         this.modules = new Map();
         this.barriers = [];
 
         this.collision = new CollisionDetector();
-        this.engine = new Engine(this.modules, this.barriers, this.pixelsPerMeter);
+        this.engine = new Engine(this);
         
         window.addEventListener('keydown', function(event) {
             that.keydowns[event.key] = true;
@@ -28,54 +34,76 @@ let Arkanoid = (function () {
             that.keydowns[event.key] = false;
         });
         
-        this.loop = function () {
-            //if(that.paused) return;
-            let keys = Object.keys(that.actions);
-            for(let i = 0; i < keys.length; i++) {
-                let key = keys[i];
-                if(that.keydowns[key]) {
-                    //调用与被按下按键注册绑定的函数
-                    that.actions[key]();
+        this.loop = function (time) {
+            //log(this.lastTime);
+            let that = this;
+            if(that.paused) {
+                setTimeout(()=>{
+                    window.requestAnimationFrame(function(time) {
+                        //this.animate.call(this,time);
+                        that.loop(time);
+                        that.lastTime = time;
+                    }) ; 
+                },100);
+            } else {
+                let keys = Object.keys(that.actions);
+                for(let i = 0; i < keys.length; i++) {
+                    let key = keys[i];
+                    if(that.keydowns[key]) {
+                        //调用与被按下按键注册绑定的函数
+                        that.actions[key]();
+                    }
                 }
+                that.tick(time);
+                that.engine.step(time);
+                
+                that.update();
+                that.clearScreen();
+                that.draw();
+    
+                that.updateFrameRate(time);
+    
+                that.lastTime = time;
+                window.requestAnimationFrame(function(time) {
+                    that.loop(time);
+                });
             }
-            //log(now, lastTime, now - lastTime);
-            that.engine.step(+new Date());
-            that.update();
-            that.clearScreen();
-            that.draw();
-
-            that.showFPS();
-            that.timers = window.requestAnimationFrame(that.loop);
         }
-        this.timers = window.requestAnimationFrame(this.loop);
+        
+        this.timers = window.requestAnimationFrame(function(time) {
+            that.startTime = getTimeNow();
+            that.loop(time);
+        });
         //this.timers = setInterval(loop, 1000/this.FPS);
         this.createEdge();
     }
     
-    let lastFpsUpdateTime = 0;
-    let lastFpsUpdate = 0;
-    arkanoid.prototype.calculateFps = function() {
-        let now  = (+new Date());
-        let fps = 1000 / (now - this.lastTime);
-        this.lastTime = now;
-        this.FPS = parseInt(fps);
-        return fps;
+    arkanoid.prototype.tick = function(time) {
+        this.updateFrameRate(time);
+        this.gameTime = getTimeNow() - this.startTime;
     };
-    arkanoid.prototype.showFPS = function() {
-        let fps = 0, time;
-        fps = this.calculateFps();
-
-        if(time === undefined) {
-            time = +new Date();
-        }
-        if(time - lastFpsUpdateTime > 300) {
-            lastFpsUpdateTime = time;
-            lastFpsUpdate = fps;
+    arkanoid.prototype.updateFrameRate = function(time) {
+        if(this.lastTime === 0) {
+            this.FPS = 60;
+        } else {
+            //if(time - this.lastTime === 0) return;
+            this.FPS = 1000 / (time - this.lastTime);
         }
 
         this.context.fillStyle = '#222';
-        this.context.fillText(lastFpsUpdate.toFixed() + ' FPS', 10, 20);
-    }
+        this.context.fillText(this.FPS.toFixed() + ' FPS', 10, 20);
+    };
+
+    arkanoid.prototype.togglePaused = function() {
+        let now = getTimeNow();
+        this.paused = !this.paused;
+        if(this.paused) {
+            this.startedPauseAt = now;
+        } else {
+            this.startTime = this.startTime + now - this.startedPauseAt;
+            //this.lastTime = 0;
+        }
+    };
 
     //按下时按键行为注册
     arkanoid.prototype.registerAction = function(key, callback) {
@@ -92,7 +120,7 @@ let Arkanoid = (function () {
     //update()和draw()需要自己覆盖定义逻辑
     arkanoid.prototype.update = function() {};
     arkanoid.prototype.draw = function() {};
-    arkanoid.prototype.run = function() {}
+    //arkanoid.prototype.run = function() {}
 
     arkanoid.prototype.drawModule = function(module) {
         let img;
@@ -142,8 +170,9 @@ let Arkanoid = (function () {
     };
 
     arkanoid.prototype.editMode = function() {
-        log(this.timers);
-        window.cancelAnimationFrame(this.timers);
+        if(this.paused) return;
+        this.togglePaused();
+
         let that = this;
         //this.paused = true;
         this.clearScreen();
@@ -177,6 +206,7 @@ let Arkanoid = (function () {
 
         window.addEventListener('keyup', (event) => {
             if(event.key === 'q') {
+                if(!that.paused) return;
                 that.canvas.removeEventListener('mousedown',addBlock);
                 blocks = tmpBlocks;
                 //log(tmpBlocks);
@@ -188,8 +218,11 @@ let Arkanoid = (function () {
     arkanoid.prototype.exitEditMode = function() {
         let that = this;
         this.clearScreen();
-
-        this.timers = window.requestAnimationFrame(this.loop);
+        this.togglePaused();
+        
+        // this.timers = window.requestAnimationFrame(function(time) {
+        //     that.loop.call(that, time); 
+        // });
     };
 
     //helper function
@@ -215,5 +248,7 @@ let Arkanoid = (function () {
         }
         return -1;
     }
+
+
     return arkanoid;
 })();

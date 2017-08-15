@@ -151,21 +151,29 @@ let CollisionDetector = (function() {
 })();
 
 let Engine = (function() {
-    function engine(entities, barriers, pixelsPerMeter) {
+    //entities, barriers, pixelsPerMeter
+    function engine(that) {
+        this.game = that;
         this.collision = new CollisionDetector();
-        this.entities = entities;
-        this.barriers = barriers;
-        this.pixelsPerMeter = pixelsPerMeter;
+        this.entities = that.modules;
+        this.barriers = that.barriers;
+        this.pixelsPerMeter = that.pixelsPerMeter;
     }
-    let lastTime;
+
     engine.prototype.step = function(time) {
         let that = this;
-        if(lastTime == undefined) {
-            lastTime = (+new Date());
-        }
+        //let now = getTimeNow();
+        // if(this.game.paused) {
+        //     log(time - this.game.lastTime)
+        //     this.game.lastTime = time;
+        //     return;
+        // }
+        let lastTime = this.game.lastTime;
+
         let elapsed = time - lastTime;
+        //log(time.toFixed(), lastTime.toFixed());
         elapsed = elapsed / 1000;
-        //log(elapsed);
+
         let gx = GRAVITY_X * elapsed;
         let gy = GRAVITY_Y * elapsed;
         //let entity;
@@ -206,7 +214,7 @@ let Engine = (function() {
             });
         });
 
-        lastTime = time;
+        this.game.lastTime = time;
     }
 
     return engine;
