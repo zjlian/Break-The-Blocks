@@ -1,7 +1,7 @@
 
 let GameFrame = (function () {
     let lestTime;
-    function arkanoid(canvasID) {
+    function frame(canvasID) {
         let that = this;
         this.canvas = document.getElementById(canvasID);
         this.context = this.canvas.getContext('2d');
@@ -73,11 +73,11 @@ let GameFrame = (function () {
         this.createEdge();
     }
     
-    arkanoid.prototype.tick = function(time) {
+    frame.prototype.tick = function(time) {
         this.updateFrameRate(time);
         this.gameTime = getTimeNow() - this.startTime;
     };
-    arkanoid.prototype.updateFrameRate = function(time) {
+    frame.prototype.updateFrameRate = function(time) {
         if(this.lastTime === 0) {
             this.FPS = 60;
         } else {
@@ -88,7 +88,7 @@ let GameFrame = (function () {
         this.context.fillText(this.FPS.toFixed() + ' FPS', 10, 20);
     };
 
-    arkanoid.prototype.togglePaused = function() {
+    frame.prototype.togglePaused = function() {
         let now = getTimeNow();
         this.paused = !this.paused;
         if(this.paused) {
@@ -99,20 +99,20 @@ let GameFrame = (function () {
     };
 
     //按下时按键行为注册
-    arkanoid.prototype.registerAction = function(key, callback) {
+    frame.prototype.registerAction = function(key, callback) {
         this.actions[key] = callback;
     };
 
-    arkanoid.prototype.addModule = function(string, module) {
+    frame.prototype.addModule = function(string, module) {
         this.modules.set(string, module);
     };
-    arkanoid.prototype.getModule = function(string) {
+    frame.prototype.getModule = function(string) {
         return this.modules.get(string);
     };
 
     //update()和draw()需要自己覆盖定义逻辑
-    arkanoid.prototype.update = function() {};
-    arkanoid.prototype.draw = function() {
+    frame.prototype.update = function() {};
+    frame.prototype.draw = function() {
         this.modules.forEach((val, key) => {
             this.drawModule(val);
         })
@@ -124,7 +124,7 @@ let GameFrame = (function () {
     };
     //arkanoid.prototype.run = function() {}
 
-    arkanoid.prototype.drawModule = function(module) {
+    frame.prototype.drawModule = function(module) {
         let img;
         if(module.images.length) {
             img = module.images[module.type];
@@ -133,10 +133,10 @@ let GameFrame = (function () {
         }
         this.context.drawImage(img, module.x, module.y, module.width, module.height);
     };
-    arkanoid.prototype.clearScreen = function() {
+    frame.prototype.clearScreen = function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     };
-    arkanoid.prototype.createEdge = function() {
+    frame.prototype.createEdge = function() {
         let topEdge = new PhysicsEntity();
         let rightEdge = new PhysicsEntity();
         let bottomEdge = new PhysicsEntity();
@@ -170,7 +170,7 @@ let GameFrame = (function () {
         this.barriers.push(topEdge, rightEdge, bottomEdge, leftEdge);
     };
 
-    arkanoid.prototype.editMode = function() {
+    frame.prototype.editMode = function() {
         if(this.paused) return;
         this.togglePaused();
         let that = this;
@@ -193,7 +193,7 @@ let GameFrame = (function () {
         });
     };
     
-    arkanoid.prototype.exitEditMode = function() {
+    frame.prototype.exitEditMode = function() {
         let that = this;
         this.clearScreen();
         this.togglePaused();
@@ -201,52 +201,5 @@ let GameFrame = (function () {
         loadLevel(levelCode);
     };
 
-    //helper function
-    function drawGrid(ct) {
-        for(let i = 0; i < 16; i++) {
-            ct.strokeStyle = '#333'
-            ct.beginPath();
-            ct.moveTo(0, 32 * i);
-            ct.lineTo(960, 32 * i);
-            ct.stroke();
-
-            ct.beginPath();
-            ct.moveTo(64 * i, 0);
-            ct.lineTo(64 * i, 32*15);
-            ct.stroke();
-        }
-    }
-    function hasBlock(blocks, x, y) {
-        for(let i = 0; i < blocks.length; i++) {
-            if(blocks[i].x === x * 64 && blocks[i].y === y * 32) {
-                return i;
-            }
-        }
-        return -1;
-    }
-    function addBlock(event, blocks, ct) {
-        let e = event;
-        let curX = Math.floor(e.offsetX / 64),
-            curY = Math.floor(e.offsetY / 32);
-
-        let status = hasBlock(blocks, curX, curY);
-        if(status !== -1) {
-            let tmpBlock = blocks[status];
-            tmpBlock.levelUp();
-
-            ct.fillStyle = '#eacd76';
-            ct.fillRect(tmpBlock.x, tmpBlock.y, 64, 32);
-        } else {
-            let tmpBlock = new Block();
-            tmpBlock.x = curX * 64;
-            tmpBlock.y = curY * 32;
-            blocks.push(tmpBlock);
-
-            ct.fillStyle = '#4b5cc4';
-            ct.fillRect(tmpBlock.x, tmpBlock.y, 64, 32);
-        }
-    }
-
-
-    return arkanoid;
+    return frame;
 })();
